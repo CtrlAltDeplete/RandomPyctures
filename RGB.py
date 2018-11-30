@@ -48,16 +48,10 @@ class RGBImage:
 
     def _generate_reds(self, return_dict=None):
         values = []
-        for x in range(self.width):
-            for y in range(self.height):
-                # Old Domain: (0, self.width)
-                # New Domain: (-1, 1)
-                adjusted_x = (x - (self.width / 2)) / self.width * 2
-
-                # Old Range: (0, self.height)
-                # New Range: (-1, 1)
-                adjusted_y = (y - (self.height / 2)) / self.height * 2
-
+        for y in range(self.height):
+            adjusted_y = 2 * y / self.height
+            for x in range(self.width):
+                adjusted_x = 2 * x / self.width
                 values.append(self.red["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["red"] = values
@@ -66,16 +60,10 @@ class RGBImage:
 
     def _generate_greens(self, return_dict=None):
         values = []
-        for x in range(self.width):
-            for y in range(self.height):
-                # Old Domain: (0, self.width)
-                # New Domain: (-1, 1)
-                adjusted_x = (x - (self.width / 2)) / self.width * 2
-
-                # Old Range: (0, self.height)
-                # New Range: (-1, 1)
-                adjusted_y = (y - (self.height / 2)) / self.height * 2
-
+        for y in range(self.height):
+            adjusted_y = 2 * y / self.height
+            for x in range(self.width):
+                adjusted_x = 2 * x / self.width
                 values.append(self.green["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["green"] = values
@@ -84,16 +72,10 @@ class RGBImage:
 
     def _generate_blues(self, return_dict=None):
         values = []
-        for x in range(self.width):
-            for y in range(self.height):
-                # Old Domain: (0, self.width)
-                # New Domain: (-1, 1)
-                adjusted_x = (x - (self.width / 2)) / self.width * 2
-
-                # Old Range: (0, self.height)
-                # New Range: (-1, 1)
-                adjusted_y = (y - (self.height / 2)) / self.height * 2
-
+        for y in range(self.height):
+            adjusted_y = 2 * y / self.height
+            for x in range(self.width):
+                adjusted_x = 2 * x / self.width
                 values.append(self.blue["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["blue"] = values
@@ -311,17 +293,19 @@ class GUI:
 
     def save(self):
         def generate_band(visible, head, shift, stretch):
+            width = 1200
+            height = 800
             if visible:
-                band = PILImage.new("L", (1200, 800))
+                band = PILImage.new("L", (width, height))
                 data = []
-                for x in range(1200):
-                    for y in range(800):
-                        new_x = x / 600 - 1
-                        new_y = y / 400 - 1
-                        data.append(((head.eval(new_x, new_y) / 2 + 0.5) * stretch + shift) % 256)
+                for y in range(height):
+                    adjusted_y = 2 * y / height
+                    for x in range(width):
+                        adjusted_x = 2 * x / width
+                        data.append(((head.eval(adjusted_x, adjusted_y) / 2 + 0.5) * stretch + shift) % 256)
                 band.putdata(data)
             else:
-                band = PILImage.new("L", (1200, 800), color=shift)
+                band = PILImage.new("L", (width, height), color=shift)
             return band
 
         visibility = self.preview.visibilities
