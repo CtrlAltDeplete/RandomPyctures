@@ -1,0 +1,11 @@
+tests/HSV/*
+
+tests/Palette/*
+
+tests/Polygon/*
+
+tests/RGB/*
+
+.idea
+
+__pycache__

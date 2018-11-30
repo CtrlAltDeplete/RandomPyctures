@@ -1,11 +1,8 @@
-import multiprocessing
-
 from Functions import *
 from PIL import Image as PILImage
 from PIL import ImageTk
-from tkinter import *
 from random import randint
-from copy import copy
+from tkinter import *
 
 
 class PaletteImage:

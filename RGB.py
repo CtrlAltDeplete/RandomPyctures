@@ -3,6 +3,7 @@ import multiprocessing
 from Functions import *
 from PIL import Image as PILImage
 from PIL import ImageTk
+from random import randint
 from tkinter import *
 
 
@@ -13,20 +14,20 @@ class RGBImage:
         self.red = {
             "tree": FunctionNode(0.6),
             "values": [],
-            "shift": 0,
-            "range": 256
+            "shift": randint(0, 255),
+            "range": randint(1, 256)
         }
         self.green = {
             "tree": FunctionNode(0.6),
             "values": [],
-            "shift": 0,
-            "range": 256
+            "shift": randint(0, 255),
+            "range": randint(1, 256)
         }
         self.blue = {
             "tree": FunctionNode(0.6),
             "values": [],
-            "shift": 0,
-            "range": 256
+            "shift": randint(0, 255),
+            "range": randint(1, 256)
         }
         self.generate()
 
