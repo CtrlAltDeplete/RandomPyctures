@@ -1,7 +1,5 @@
 import math
-import multiprocessing
 
-from Functions import *
 from PIL import Image as PILImage
 from PIL import ImageDraw
 from PIL import ImageTk
@@ -163,10 +161,10 @@ class GUI:
                            (randint(0, 255), randint(0, 255), randint(0, 255), 16),
                            (randint(0, 255), randint(0, 255), randint(0, 255), 16)]
             self.draw.rectangle([0, 0, 600, 400], fill="white")
-            for stroke in self.watercolor.strokes["values"]:
-                self.paint_polygon(stroke, choice(self.colors))
-            for blob in self.watercolor.blobs["values"]:
-                self.paint_polygon(blob, choice(self.colors))
+            all_polys = self.watercolor.strokes["values"].copy()
+            all_polys.extend(self.watercolor.blobs["values"])
+            for poly in all_polys:
+                self.paint_polygon(poly, choice(self.colors), self.draw)
             self.tk_image = ImageTk.PhotoImage(image=self.pil_image)
             if self.label:
                 self.label.destroy()
@@ -200,12 +198,12 @@ class GUI:
                 new_poly.append(p2)
             return new_poly
 
-        def paint_polygon(self, polygon, color):
+        def paint_polygon(self, polygon, color, draw):
             for i in range(randint(self.watercolor.strokes["size"][0] // 20, self.watercolor.strokes["size"][1] // 20)):
                 poly = polygon
                 for j in range(randint(self.watercolor.strokes["size"][0] // 15, self.watercolor.strokes["size"][1] // 15)):
                     poly = self.deform_polygon(poly)
-                self.draw.polygon(poly, fill=color)
+                draw.polygon(poly, fill=color)
 
     def __init__(self, master):
         self.master = master
