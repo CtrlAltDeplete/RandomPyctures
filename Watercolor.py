@@ -5,7 +5,6 @@ from PIL import ImageDraw
 from PIL import ImageTk
 from random import choice
 from random import randint
-from random import seed
 from tkinter import *
 
 
@@ -261,7 +260,6 @@ class GUI:
 
 
 if __name__ == "__main__":
-    seed("CCAD")
     root = Tk()
     gui = GUI(root)
     root.mainloop()
