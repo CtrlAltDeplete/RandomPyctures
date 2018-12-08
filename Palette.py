@@ -32,8 +32,8 @@ class PaletteImage:
         sorted_values = self.palette["values"].copy()
         sorted_values.sort()
 
-        for i in range(0, 100):
-            self.palette["breakpoints"][i + 1] = sorted_values[int(len(sorted_values) * i / 100)]
+        for i in range(0, 101):
+            self.palette["breakpoints"][i] = sorted_values[int((len(sorted_values) - 1) * i / 100)]
 
     def new(self, complexity=0.8):
         self.palette["tree"] = FunctionNode(complexity)

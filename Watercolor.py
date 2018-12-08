@@ -3,8 +3,8 @@ import math
 from PIL import Image as PILImage
 from PIL import ImageDraw
 from PIL import ImageTk
-from random import randint
 from random import choice
+from random import randint
 from tkinter import *
 
 
