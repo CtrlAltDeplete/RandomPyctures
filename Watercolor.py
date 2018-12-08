@@ -5,6 +5,7 @@ from PIL import ImageDraw
 from PIL import ImageTk
 from random import choice
 from random import randint
+from random import seed
 from tkinter import *
 
 
@@ -16,15 +17,15 @@ class WatercolorImage:
             self.strokes = strokes
         else:
             self.strokes = {
-                "count": randint(150, 190),
-                "size": (40, 90),
+                "count": randint(60, 90),
+                "size": (10, 55),
                 "values": []
             }
         if blobs:
             self.blobs = blobs
         else:
             self.blobs = {
-                "count": randint(140, 170),
+                "count": randint(80, 120),
                 "size": (30, 70),
                 "values": []
             }
@@ -81,8 +82,8 @@ class WatercolorImage:
         else:
             points.sort(key=lambda point: point[1])
         b_curve = []
-        for i in range(12):
-            t = i / 11
+        for i in range(8):
+            t = i / 7
             x = 0
             y = 0
             for n in range(len(points)):
@@ -95,7 +96,7 @@ class WatercolorImage:
         stroke_points = []
         size = randint(self.strokes["size"][0], self.strokes["size"][1])
         # Draw the rounded beginning, starting with the upper perp
-        angle = calc_perp(b_curve[0], b_curve[1])
+        angle = calc_perp(b_curve[0], b_curve[1]) + math.pi
         for i in range(4):
             x = b_curve[0][0] + size * math.cos(angle)
             y = b_curve[0][1] + size * math.sin(angle)
@@ -103,7 +104,7 @@ class WatercolorImage:
             angle += math.pi / 3
         # Draw the lower perp for each mid point
         for i in range(1, len(b_curve) - 1):
-            angle = calc_perp(b_curve[i - 1], b_curve[i + 1], False)
+            angle = calc_perp(b_curve[i - 1], b_curve[i + 1], False) + math.pi
             x = b_curve[i][0] + size * math.cos(angle)
             y = b_curve[i][1] + size * math.sin(angle)
             stroke_points.append((x, y))
@@ -199,9 +200,9 @@ class GUI:
             return new_poly
 
         def paint_polygon(self, polygon, color, draw):
-            for i in range(randint(self.watercolor.strokes["size"][0] // 20, self.watercolor.strokes["size"][1] // 20)):
+            for i in range(randint()):
                 poly = polygon
-                for j in range(randint(self.watercolor.strokes["size"][0] // 15, self.watercolor.strokes["size"][1] // 15)):
+                for j in range(randint(3, 5)):
                     poly = self.deform_polygon(poly)
                 draw.polygon(poly, fill=color)
 
@@ -260,6 +261,7 @@ class GUI:
 
 
 if __name__ == "__main__":
+    seed("test")
     root = Tk()
     gui = GUI(root)
     root.mainloop()
