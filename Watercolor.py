@@ -200,7 +200,7 @@ class GUI:
             return new_poly
 
         def paint_polygon(self, polygon, color, draw):
-            for i in range(randint()):
+            for i in range(randint(1, 5)):
                 poly = polygon
                 for j in range(randint(3, 5)):
                     poly = self.deform_polygon(poly)
@@ -261,7 +261,7 @@ class GUI:
 
 
 if __name__ == "__main__":
-    seed("test")
+    seed("CCAD")
     root = Tk()
     gui = GUI(root)
     root.mainloop()
