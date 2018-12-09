@@ -2,6 +2,7 @@ from Functions import *
 from PIL import Image as PILImage
 from PIL import ImageTk
 from random import randint
+from sys import argv
 from tkinter import *
 
 
@@ -209,10 +210,62 @@ class GUI:
         new_data = [self.preview.colors[i] for i in data]
         final_image = PILImage.new("RGB", (1200, 800))
         final_image.putdata(new_data)
-        final_image.save("tests/Palette/" + self.save_name.get() + ".png", "PNG")
+        final_image.save(self.save_name.get() + ".png", "PNG")
+
+
+def save_palette(width, height, name, fuzzy):
+    palette_image = PaletteImage(width, height)
+    breakpoints = [20, 40, 60, 80]
+    data = []
+    if fuzzy:
+        for v in palette_image.palette["values"]:
+            if v < palette_image.palette["breakpoints"][breakpoints[0] + randint(-5, 5)]:
+                data.append(0)
+            elif v < palette_image.palette["breakpoints"][breakpoints[1] + randint(-5, 5)]:
+                data.append(1)
+            elif v < palette_image.palette["breakpoints"][breakpoints[2] + randint(-5, 5)]:
+                data.append(2)
+            elif v < palette_image.palette["breakpoints"][breakpoints[3] + randint(-5, 5)]:
+                data.append(3)
+            else:
+                data.append(4)
+    else:
+        for v in palette_image.palette["values"]:
+            if v < palette_image.palette["breakpoints"][breakpoints[0]]:
+                data.append(0)
+            elif v < palette_image.palette["breakpoints"][breakpoints[1]]:
+                data.append(1)
+            elif v < palette_image.palette["breakpoints"][breakpoints[2]]:
+                data.append(2)
+            elif v < palette_image.palette["breakpoints"][breakpoints[3]]:
+                data.append(3)
+            else:
+                data.append(4)
+    colors = [(randint(0, 255), randint(0, 255), randint(0, 255)),
+              (randint(0, 255), randint(0, 255), randint(0, 255)),
+              (randint(0, 255), randint(0, 255), randint(0, 255)),
+              (randint(0, 255), randint(0, 255), randint(0, 255)),
+              (randint(0, 255), randint(0, 255), randint(0, 255))]
+    new_data = [colors[i] for i in data]
+    final_image = PILImage.new("RGB", (width, height))
+    final_image.putdata(new_data)
+    final_image.save(name + ".png", "PNG")
 
 
 if __name__ == "__main__":
-    root = Tk()
-    gui = GUI(root)
-    root.mainloop()
+    if "-gui" in argv:
+        root = Tk()
+        gui = GUI(root)
+        root.mainloop()
+    else:
+        width = 1200
+        height = 800
+        name = "test"
+        fuzzy = "-fuzzy" in argv
+        if "-width" in argv:
+            width = int(argv[argv.index("-width") + 1])
+        if "-height" in argv:
+            height = int(argv[argv.index("-height") + 1])
+        if "-name" in argv:
+            name = argv[argv.index("-name") + 1]
+        save_palette(width, height, name, fuzzy)

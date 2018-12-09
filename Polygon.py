@@ -8,6 +8,7 @@ from PIL import Image as PILImage
 from PIL import ImageDraw
 from PIL import ImageTk
 from random import randint
+from sys import argv
 from tkinter import *
 
 
@@ -218,59 +219,13 @@ class GUI:
             i = 0
             for y in range(-self.poly_image.step_size, 400 + self.poly_image.step_size, self.poly_image.step_size):
                 for x in range(-self.poly_image.step_size, 600 + self.poly_image.step_size, self.poly_image.step_size):
-                    self.generate_polygon(x, y, i)
+                    generate_polygon(self.poly_image, self.draw, x, y, i)
                     i += 1
 
             self.tk_image = ImageTk.PhotoImage(image=self.pil_image)
             self.label.destroy()
             self.label = Label(self.master, image=self.tk_image)
             self.label.pack()
-
-        def generate_polygon(self, x, y, i):
-            def hsv_to_rgb(h, s, v):
-                h = 360 * h / 255
-                s = s / 255
-                v = v / 255
-                c = v * s
-                x = c * (1 - abs(h / 60 % 2 - 1))
-                m = v - c
-                if h < 60:
-                    r, g, b = c, x, 0
-                elif h < 120:
-                    r, g, b = x, c, 0
-                elif h < 180:
-                    r, g, b = 0, c, x
-                elif h < 240:
-                    r, g, b = 0, x, c
-                elif h < 300:
-                    r, g, b = x, 0, c
-                else:
-                    r, g, b = c, 0, x
-                return int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)
-
-            hue = (self.poly_image.hue["range"] * (self.poly_image.hue["values"][i] / 2 + 0.5) +
-                   self.poly_image.hue["shift"]) % 255
-            sat = (self.poly_image.sat["range"] * (self.poly_image.sat["values"][i] / 2 + 0.5) +
-                   self.poly_image.sat["shift"]) % 255
-            val = (self.poly_image.val["range"] * (self.poly_image.val["values"][i] / 2 + 0.5) +
-                   self.poly_image.val["shift"]) % 255
-            opac = (self.poly_image.opac["range"] * (self.poly_image.opac["values"][i] / 2 + 0.5) +
-                    self.poly_image.opac["shift"]) % 255
-            rot = math.pi * ((self.poly_image.rot["range"] * (self.poly_image.rot["values"][i] / 2 + 0.5) +
-                              self.poly_image.rot["shift"]) % 360) / 180
-            size = self.poly_image.size["range"] * (self.poly_image.size["values"][i] / 2 + 0.5) +\
-                self.poly_image.size["shift"]
-
-            red, green, blue = hsv_to_rgb(hue, sat, val)
-            angles = [rot + theta for theta in self.poly_image.polygon["angles"]]
-            distances = [size * dist for dist in self.poly_image.polygon["distances"]]
-            points = []
-            for j in range(len(angles)):
-                points.append((
-                    x + distances[j] * math.cos(angles[j]),
-                    y + distances[j] * math.sin(angles[j])
-                ))
-            self.draw.polygon(points, fill=(red, green, blue, int(opac)))
 
     def __init__(self, master):
         self.boot = True
@@ -436,21 +391,119 @@ class GUI:
         self.preview.update()
 
     def save(self):
-        self.preview.pil_image.save("tests/Polygon/" + self.save_name.get() + ".png", "PNG")
+        self.preview.pil_image.save(self.save_name.get() + ".png", "PNG")
 
     def create_gif(self):
         frames = []
         for i in range(0, 360):
             self.preview.poly_image.rot["shift"] = i
             self.preview.update()
-            self.preview.pil_image.save("tests/Polygon/{}-{}.png".format(self.save_name.get(), i))
-            frames.append(imageio.imread("tests/Polygon/{}-{}.png".format(self.save_name.get(), i)))
-        imageio.mimsave('tests/Polygon/{}.gif'.format(self.save_name.get()), frames, 'GIF', duration=1/60)
+            self.preview.pil_image.save("{}-{}.png".format(self.save_name.get(), i))
+            frames.append(imageio.imread("{}-{}.png".format(self.save_name.get(), i)))
+        imageio.mimsave('{}.gif'.format(self.save_name.get()), frames, 'GIF', duration=1/60)
         for i in range(0, 360):
-            remove("tests/Polygon/{}-{}.png".format(self.save_name.get(), i))
+            remove("{}-{}.png".format(self.save_name.get(), i))
+
+
+def hsv_to_rgb(h, s, v):
+    h = 360 * h / 255
+    s = s / 255
+    v = v / 255
+    c = v * s
+    x = c * (1 - abs(h / 60 % 2 - 1))
+    m = v - c
+    if h < 60:
+        r, g, b = c, x, 0
+    elif h < 120:
+        r, g, b = x, c, 0
+    elif h < 180:
+        r, g, b = 0, c, x
+    elif h < 240:
+        r, g, b = 0, x, c
+    elif h < 300:
+        r, g, b = x, 0, c
+    else:
+        r, g, b = c, 0, x
+    return int((r + m) * 255), int((g + m) * 255), int((b + m) * 255)
+
+
+def generate_polygon(poly_image, draw, x, y, i):
+    hue = (poly_image.hue["range"] * (poly_image.hue["values"][i] / 2 + 0.5) + poly_image.hue["shift"]) % 255
+    sat = (poly_image.sat["range"] * (poly_image.sat["values"][i] / 2 + 0.5) +
+           poly_image.sat["shift"]) % 255
+    val = (poly_image.val["range"] * (poly_image.val["values"][i] / 2 + 0.5) +
+           poly_image.val["shift"]) % 255
+    opac = (poly_image.opac["range"] * (poly_image.opac["values"][i] / 2 + 0.5) +
+            poly_image.opac["shift"]) % 255
+    rot = math.pi * ((poly_image.rot["range"] * (poly_image.rot["values"][i] / 2 + 0.5) +
+                      poly_image.rot["shift"]) % 360) / 180
+    size = poly_image.size["range"] * (poly_image.size["values"][i] / 2 + 0.5) + \
+           poly_image.size["shift"]
+
+    red, green, blue = hsv_to_rgb(hue, sat, val)
+    angles = [rot + theta for theta in poly_image.polygon["angles"]]
+    distances = [size * dist for dist in poly_image.polygon["distances"]]
+    points = []
+    for j in range(len(angles)):
+        points.append((
+            x + distances[j] * math.cos(angles[j]),
+            y + distances[j] * math.sin(angles[j])
+        ))
+    draw.polygon(points, fill=(red, green, blue, int(opac)))
+
+
+def save_polygon_png(width, height, name):
+    poly_image = PolygonImage(width, height)
+    pil_image = PILImage.new("RGB", (width, height))
+    draw = ImageDraw.Draw(pil_image, "RGBA")
+
+    draw.rectangle([0, 0, width, height], fill=(255, 255, 255))
+    i = 0
+    for y in range(-poly_image.step_size, height + poly_image.step_size, poly_image.step_size):
+        for x in range(-poly_image.step_size, width + poly_image.step_size, poly_image.step_size):
+            generate_polygon(poly_image, draw, x, y, i)
+            i += 1
+    pil_image.save(name + ".png", "PNG")
+
+
+def save_polygon_gif(width, height, name):
+    poly_image = PolygonImage(width, height)
+    pil_image = PILImage.new("RGB", (width, height))
+    draw = ImageDraw.Draw(pil_image, "RGBA")
+
+    frames = []
+    for j in range(0, 360):
+        poly_image.rot["shift"] = j
+        draw.rectangle([0, 0, width, height], fill=(255, 255, 255))
+        i = 0
+        for y in range(-poly_image.step_size, height + poly_image.step_size, poly_image.step_size):
+            for x in range(-poly_image.step_size, width + poly_image.step_size, poly_image.step_size):
+                generate_polygon(poly_image, draw, x, y, i)
+                i += 1
+        pil_image.save("{}-{}.png".format(name, j), "PNG")
+        frames.append(imageio.imread("{}-{}.png".format(name, j)))
+
+    imageio.mimsave('{}.gif'.format(name), frames, 'GIF', duration=1/60)
+    for i in range(0, 360):
+        remove("{}-{}.png".format(name, i))
 
 
 if __name__ == "__main__":
-    root = Tk()
-    gui = GUI(root)
-    root.mainloop()
+    if "-gui" in argv:
+        root = Tk()
+        gui = GUI(root)
+        root.mainloop()
+    else:
+        width = 1200
+        height = 800
+        name = "test"
+        if "-width" in argv:
+            width = int(argv[argv.index("-width") + 1])
+        if "-height" in argv:
+            height = int(argv[argv.index("-height") + 1])
+        if "-name" in argv:
+            name = argv[argv.index("-name") + 1]
+        if "-gif" in argv:
+            save_polygon_gif(width, height, name)
+        else:
+            save_polygon_png(width, height, name)

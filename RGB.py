@@ -4,6 +4,7 @@ from Functions import *
 from PIL import Image as PILImage
 from PIL import ImageTk
 from random import randint
+from sys import argv
 from tkinter import *
 
 
@@ -293,31 +294,51 @@ class GUI:
         self.preview.update()
 
     def save(self):
-        def generate_band(visible, head, shift, stretch):
-            width = 1200
-            height = 800
-            if visible:
-                band = PILImage.new("L", (width, height))
-                data = []
-                for y in range(height):
-                    adjusted_y = 2 * y / height
-                    for x in range(width):
-                        adjusted_x = 2 * x / width
-                        data.append(((head.eval(adjusted_x, adjusted_y) / 2 + 0.5) * stretch + shift) % 256)
-                band.putdata(data)
-            else:
-                band = PILImage.new("L", (width, height), color=shift)
-            return band
-
         visibility = self.preview.visibilities
         color = self.preview.rgb_image.red, self.preview.rgb_image.green, self.preview.rgb_image.blue
-        bands = [generate_band(visibility[i], color[i]["tree"], color[i]["shift"], color[i]["range"]) for i in range(3)]
+        bands = [generate_band(1200, 800, visibility[i], color[i]["tree"], color[i]["shift"], color[i]["range"]) for i in range(3)]
 
         final_image = PILImage.merge("RGB", bands)
-        final_image.save("tests/RGB/" + self.save_name.get() + ".png", "PNG")
+        final_image.save(self.save_name.get() + ".png", "PNG")
+
+
+def generate_band(width, height, visible, head, shift, stretch):
+    if visible:
+        band = PILImage.new("L", (width, height))
+        data = []
+        for y in range(height):
+            adjusted_y = 2 * y / height
+            for x in range(width):
+                adjusted_x = 2 * x / width
+                data.append(((head.eval(adjusted_x, adjusted_y) / 2 + 0.5) * stretch + shift) % 256)
+        band.putdata(data)
+    else:
+        band = PILImage.new("L", (width, height), color=shift)
+    return band
+
+
+def save_RGB(width, height, name):
+    rgb_image = RGBImage(width, height)
+    color = rgb_image.red, rgb_image.green, rgb_image.blue
+    bands = [generate_band(width, height, True, color[i]["tree"], color[i]["shift"], color[i]["range"]) for i in range(3)]
+
+    final_image = PILImage.merge("RGB", bands)
+    final_image.save(name + ".png", "PNG")
 
 
 if __name__ == "__main__":
-    root = Tk()
-    gui = GUI(root)
-    root.mainloop()
+    if "-gui" in argv:
+        root = Tk()
+        gui = GUI(root)
+        root.mainloop()
+    else:
+        width = 1200
+        height = 800
+        name = "test"
+        if "-width" in argv:
+            width = int(argv[argv.index("-width") + 1])
+        if "-height" in argv:
+            height = int(argv[argv.index("-height") + 1])
+        if "-name" in argv:
+            name = argv[argv.index("-name") + 1]
+        save_RGB(width, height, name)

@@ -223,7 +223,7 @@ class GUI:
         self.preview.new(True)
 
     def save(self):
-        self.preview.pil_image.save("tests/Watercolor/" + self.save_name.get() + ".png", "PNG")
+        self.preview.pil_image.save(self.save_name.get() + ".png", "PNG")
 
 
 def deform_polygon(poly):
