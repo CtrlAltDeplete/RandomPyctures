@@ -10,7 +10,7 @@ from tkinter import *
 
 
 class WatercolorImage:
-    def __init__(self, width, height, strokes=None, blobs=None):
+    def __init__(self, width, height, blobs=None, strokes=None):
         self.width = width
         self.height = height
         if strokes:
@@ -82,8 +82,8 @@ class WatercolorImage:
         else:
             points.sort(key=lambda point: point[1])
         b_curve = []
-        for i in range(8):
-            t = i / 7
+        for i in range(12):
+            t = i / 11
             x = 0
             y = 0
             for n in range(len(points)):
@@ -157,10 +157,10 @@ class GUI:
                 self.watercolor = WatercolorImage(600, 400, strokes, blobs)
             else:
                 self.watercolor = WatercolorImage(600, 400)
-            self.colors = [(randint(0, 255), randint(0, 255), randint(0, 255), 16),
-                           (randint(0, 255), randint(0, 255), randint(0, 255), 16),
-                           (randint(0, 255), randint(0, 255), randint(0, 255), 16),
-                           (randint(0, 255), randint(0, 255), randint(0, 255), 16)]
+            self.colors = [(randint(0, 255), randint(0, 255), randint(0, 255), 8),
+                           (randint(0, 255), randint(0, 255), randint(0, 255), 8),
+                           (randint(0, 255), randint(0, 255), randint(0, 255), 8),
+                           (randint(0, 255), randint(0, 255), randint(0, 255), 8)]
             self.draw.rectangle([0, 0, 600, 400], fill="white")
             all_polys = self.watercolor.strokes["values"].copy()
             all_polys.extend(self.watercolor.blobs["values"])
@@ -171,7 +171,7 @@ class GUI:
                 self.label.destroy()
             self.label = Label(self.master, image=self.tk_image)
             self.label.pack()
-            
+
     def __init__(self, master):
         self.master = master
         self.frame = Frame(self.master)
@@ -254,27 +254,27 @@ def deform_polygon(poly):
 
 
 def paint_polygon(watercolor, polygon, color, draw):
-    for i in range(randint(watercolor.strokes["size"][0] // 20, watercolor.strokes["size"][1] // 20)):
+    for i in range(randint(watercolor.strokes["size"][0] // 20, watercolor.strokes["size"][1] // 12)):
         poly = polygon
-        for j in range(randint(watercolor.strokes["size"][0] // 15, watercolor.strokes["size"][1] // 15)):
+        for j in range(randint(watercolor.strokes["size"][0] // 11, watercolor.strokes["size"][1] // 9)):
             poly = deform_polygon(poly)
         draw.polygon(poly, fill=color)
 
 
-def save_watercolor(name, width, height):
+def save_watercolor(name, width, height, blobs, strokes):
     if not width or not height:
         width = 1200
         height = 800
     if not name:
         name = "test"
-    watercolor = WatercolorImage(width, height)
+    watercolor = WatercolorImage(width, height, blobs, strokes)
     pil_image = PILImage.new("RGB", (width, height))
     draw = ImageDraw.Draw(pil_image, "RGBA")
-    colors = [(randint(0, 255), randint(0, 255), randint(0, 255), 16),
-              (randint(0, 255), randint(0, 255), randint(0, 255), 16),
-              (randint(0, 255), randint(0, 255), randint(0, 255), 16),
-              (randint(0, 255), randint(0, 255), randint(0, 255), 16)]
-    draw.rectangle([0, 0, 600, 400], fill="white")
+    colors = [(randint(0, 255), randint(0, 255), randint(0, 255), 8),
+              (randint(0, 255), randint(0, 255), randint(0, 255), 8),
+              (randint(0, 255), randint(0, 255), randint(0, 255), 8),
+              (randint(0, 255), randint(0, 255), randint(0, 255), 8)]
+    draw.rectangle([0, 0, width, height], fill="white")
     all_polys = watercolor.strokes["values"].copy()
     all_polys.extend(watercolor.blobs["values"])
     for poly in all_polys:
@@ -297,4 +297,32 @@ if __name__ == "__main__":
             height = int(argv[index + 2])
         if "-name" in argv:
             name = argv[argv.index("-name") + 1]
-        save_watercolor(name, width, height)
+        if "-blob_count" in argv:
+            blob_count = int(argv[argv.index("-blob_count") + 1])
+        else:
+            blob_count = randint(80, 120)
+        if "-blob_size" in argv:
+            blob_min = int(argv[argv.index("-blob_size") + 1])
+            blob_max = int(argv[argv.index("-blob_size") + 2])
+        else:
+            blob_min, blob_max = 30, 70
+        if "-stroke_count" in argv:
+            stroke_count = int(argv[argv.index("-stroke_count") + 1])
+        else:
+            stroke_count = randint(60, 90)
+        if "-stroke_size" in argv:
+            stroke_min = int(argv[argv.index("-stroke_size") + 1])
+            stroke_max = int(argv[argv.index("-stroke_size") + 2])
+        else:
+            stroke_min, stroke_max = 10, 55
+        blobs = {
+            "count": blob_count,
+            "size": (blob_min, blob_max),
+            "values": []
+        }
+        strokes = {
+            "count": stroke_count,
+            "size": (stroke_min, stroke_max),
+            "values": []
+        }
+        save_watercolor(name, width, height, blobs, strokes)
