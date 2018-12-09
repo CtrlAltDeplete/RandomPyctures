@@ -5,6 +5,7 @@ from PIL import ImageDraw
 from PIL import ImageTk
 from random import choice
 from random import randint
+from sys import argv
 from tkinter import *
 
 
@@ -164,47 +165,13 @@ class GUI:
             all_polys = self.watercolor.strokes["values"].copy()
             all_polys.extend(self.watercolor.blobs["values"])
             for poly in all_polys:
-                self.paint_polygon(poly, choice(self.colors), self.draw)
+                paint_polygon(self.watercolor, poly, choice(self.colors), self.draw)
             self.tk_image = ImageTk.PhotoImage(image=self.pil_image)
             if self.label:
                 self.label.destroy()
             self.label = Label(self.master, image=self.tk_image)
             self.label.pack()
-
-        @staticmethod
-        def deform_polygon(poly):
-            def rand_point():
-                dx = p2[0] - p1[0]
-                dy = p2[1] - p1[1]
-                try:
-                    x = dx / abs(dx) * randint(0, int(abs(dx)))
-                except ZeroDivisionError:
-                    x = 0
-                try:
-                    y = dy / abs(dy) * randint(0, int(abs(dy)))
-                except ZeroDivisionError:
-                    y = 0
-                return p1[0] + x, p1[1] + y
-
-            new_poly = []
-            for i in range(len(poly)):
-                p1 = poly[i]
-                if len(poly) - 1 == i:
-                    p2 = poly[0]
-                    new_poly.append(p1)
-                else:
-                    p2 = poly[i + 1]
-                new_poly.append(rand_point())
-                new_poly.append(p2)
-            return new_poly
-
-        def paint_polygon(self, polygon, color, draw):
-            for i in range(randint(1, 5)):
-                poly = polygon
-                for j in range(randint(3, 5)):
-                    poly = self.deform_polygon(poly)
-                draw.polygon(poly, fill=color)
-
+            
     def __init__(self, master):
         self.master = master
         self.frame = Frame(self.master)
@@ -259,7 +226,75 @@ class GUI:
         self.preview.pil_image.save("tests/Watercolor/" + self.save_name.get() + ".png", "PNG")
 
 
+def deform_polygon(poly):
+    def rand_point():
+        dx = p2[0] - p1[0]
+        dy = p2[1] - p1[1]
+        try:
+            x = dx / abs(dx) * randint(0, int(abs(dx)))
+        except ZeroDivisionError:
+            x = 0
+        try:
+            y = dy / abs(dy) * randint(0, int(abs(dy)))
+        except ZeroDivisionError:
+            y = 0
+        return p1[0] + x, p1[1] + y
+
+    new_poly = []
+    for i in range(len(poly)):
+        p1 = poly[i]
+        if len(poly) - 1 == i:
+            p2 = poly[0]
+            new_poly.append(p1)
+        else:
+            p2 = poly[i + 1]
+        new_poly.append(rand_point())
+        new_poly.append(p2)
+    return new_poly
+
+
+def paint_polygon(watercolor, polygon, color, draw):
+    for i in range(randint(watercolor.strokes["size"][0] // 20, watercolor.strokes["size"][1] // 20)):
+        poly = polygon
+        for j in range(randint(watercolor.strokes["size"][0] // 15, watercolor.strokes["size"][1] // 15)):
+            poly = deform_polygon(poly)
+        draw.polygon(poly, fill=color)
+
+
+def save_watercolor(name, width, height):
+    if not width or not height:
+        width = 1200
+        height = 800
+    if not name:
+        name = "test"
+    watercolor = WatercolorImage(width, height)
+    pil_image = PILImage.new("RGB", (width, height))
+    draw = ImageDraw.Draw(pil_image, "RGBA")
+    colors = [(randint(0, 255), randint(0, 255), randint(0, 255), 16),
+              (randint(0, 255), randint(0, 255), randint(0, 255), 16),
+              (randint(0, 255), randint(0, 255), randint(0, 255), 16),
+              (randint(0, 255), randint(0, 255), randint(0, 255), 16)]
+    draw.rectangle([0, 0, 600, 400], fill="white")
+    all_polys = watercolor.strokes["values"].copy()
+    all_polys.extend(watercolor.blobs["values"])
+    for poly in all_polys:
+        paint_polygon(watercolor, poly, choice(colors), draw)
+    pil_image.save(name + ".png", "PNG")
+
+
 if __name__ == "__main__":
-    root = Tk()
-    gui = GUI(root)
-    root.mainloop()
+    if "-gui" in argv:
+        root = Tk()
+        gui = GUI(root)
+        root.mainloop()
+    else:
+        width = None
+        height = None
+        name = None
+        if "-size" in argv:
+            index = argv.index("-size")
+            width = int(argv[index + 1])
+            height = int(argv[index + 2])
+        if "-name" in argv:
+            name = argv[argv.index("-name") + 1]
+        save_watercolor(name, width, height)
