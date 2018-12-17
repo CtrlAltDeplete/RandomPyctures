@@ -4,12 +4,42 @@ from Functions import *
 from PIL import Image as PILImage
 from PIL import ImageTk
 from random import randint
+from random import seed
 from sys import argv
 from tkinter import *
 
 
 class HSVImage:
-    def __init__(self, width, height):
+    """
+    The HSVImage is a class comprised of three separate Function Trees:
+        Hue
+        Saturation
+        Value
+
+    Args:
+        width (int): The width of the image to generate.
+        height (int): The height of the image to generate.
+
+    Attributes:
+        width (int): The width of the image to generate.
+        height (int): The height of the image to generate.
+        hue (dict): All information related to the hue values for every pixel.
+            tree (FunctionNode): The Functional Tree to calculate the values.
+            values (list): The list of floats of values for the hues.
+            shift (int): The amount every hue value is shifted.
+            range (int): The range of the hue values.
+        sat (dict): All information related to the saturation values for every pixel.
+            tree (FunctionNode): The Functional Tree to calculate the values.
+            values (list): The list of floats of values for the saturation.
+            shift (int): The amount every saturation value is shifted.
+            range (int): The range of the saturation values.
+
+    Methods:
+        new: Assigns new Functional Trees to the hue, saturation, and value, and calls
+             generate on the new trees.
+        generate: Generates the values for each tree in hue, saturation, and value.
+    """
+    def __init__(self, width: int, height: int):
         self.width = width
         self.height = height
         self.hue = {
@@ -33,6 +63,7 @@ class HSVImage:
         self.generate()
 
     def generate(self):
+        """Sets the hue, saturation, and value values."""
         manager = multiprocessing.Manager()
         return_dict = manager.dict()
 
@@ -97,6 +128,7 @@ class HSVImage:
         self._generate_vals()
 
     def new(self, complexity=(0.6, 0.6, 0.6)):
+        """Creates new trees for hue, saturation, and value, and then generates values for these."""
         self.hue["tree"] = FunctionNode(complexity[0])
         self.sat["tree"] = FunctionNode(complexity[1])
         self.val["tree"] = FunctionNode(complexity[2])
@@ -104,7 +136,56 @@ class HSVImage:
 
 
 class GUI:
+    """
+    The GUI for the HSVImage generation process.
+    There is a frame for previewing the image, and a frame for manipulating
+    shift or range for hue, saturation, and value.
+
+    Args:
+        master (Tk): The master for all Tkinter objects to use.
+
+    Attributes:
+        new_hue_button (Button): The button used to generate a new hue tree.
+        hue_shift (Scale): The slider used to adjust the shift of the hue values.
+        hue_range (Scale): The slider used to adjust the range of the hue values.
+        new_sat_button (Button): The button used to generate a new sat tree.
+        sat_shift (Scale): The slider used to adjust the shift of the sat values.
+        sat_range (Scale): The slider used to adjust the range of the sat values.
+        new_val_button (Button): The button used to generate a new value tree.
+        val_shift (Scale): The slider used to adjust the shift of the value values.
+        val_range (Scale): The slider used to adjust the range of the value values.
+        save_name (Entry): The name to save the image under.
+        save_button (Button): The button to save the image (using the save name)
+
+    ........................................................................................
+    |                      Tree                 Shift              Range          Toggle   |
+    |                   ...........                                              ........  |
+    |     Hue           | New Hue |        |||||----------    |||||----------    | Hide |  |
+    |                   |.........|                                              |......|  |
+    |                ..................                                          ........  |
+    |  Saturation    | New Saturation |    |||||----------    |||||----------    | Hide |  |
+    |                |................|                                          |......|  |
+    |                  .............                                             ........  |
+    |    Value         | New Value |       |||||----------    |||||----------    | Hide |  |
+    |                  |...........|                                             |......|  |
+    |                .........................                                   ........  |
+    |                |                       |                                   | Save |  |
+    |                |.......................|                                   |.......  |
+    |......................................................................................|
+    """
     class Preview:
+        """
+        This is the frame for previewing the image.
+
+        Args:
+            master (Toplevel): The master for all Tkinter objects to use.
+
+        Attributes:
+            hsv_image (HSVImage): The HSV Image data for the preview.
+            pil_image (PILImage): The PIL Image that the HSV Image is rendered onto.
+            tk_image (PhotoImage): This is used to render the PIL Image onto the Tkinter Frame.
+            bands (list): The list of hue, saturation, and value bands that combine to make the image.
+        """
         def __init__(self, master):
             self.master = master
             self.frame = Frame(self.master)
@@ -150,6 +231,7 @@ class GUI:
                 self.bands[2].putdata(data)
 
         def generate(self):
+            """Sets the bands for each hue, saturation, and value."""
             manager = multiprocessing.Manager()
             return_dict = manager.dict()
 
@@ -164,6 +246,7 @@ class GUI:
             self.bands = return_dict["hue_band"], return_dict["sat_band"], return_dict["val_band"]
 
         def update(self):
+            """Combines the bands into the PIL Image and updates the tk_image."""
             bands = []
             if self.visibilities[0]:
                 bands.append(self.bands[0])
@@ -302,7 +385,17 @@ class GUI:
         final_image.save(self.save_name.get() + ".png", "PNG")
 
 
-def generate_band(width, height, visible, head, shift, stretch):
+def generate_band(width: int, height: int, visible: bool, head: FunctionNode, shift: int, stretch: int):
+    """
+    Generates a band with the given input.
+    :param width:
+    :param height:
+    :param visible:
+    :param head:
+    :param shift:
+    :param stretch:
+    :return:
+    """
     if visible:
         band = PILImage.new("L", (width, height))
         data = []
@@ -341,4 +434,5 @@ if __name__ == "__main__":
             height = int(argv[argv.index("-height") + 1])
         if "-name" in argv:
             name = argv[argv.index("-name") + 1]
+            seed(name)
         save_HSV(width, height, name)

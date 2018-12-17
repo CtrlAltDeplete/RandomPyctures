@@ -5,6 +5,7 @@ from PIL import ImageDraw
 from PIL import ImageTk
 from random import choice
 from random import randint
+from random import seed
 from sys import argv
 from tkinter import *
 
@@ -297,24 +298,25 @@ if __name__ == "__main__":
             height = int(argv[index + 2])
         if "-name" in argv:
             name = argv[argv.index("-name") + 1]
+            seed(name)
         if "-blob_count" in argv:
             blob_count = int(argv[argv.index("-blob_count") + 1])
         else:
-            blob_count = randint(80, 120)
+            blob_count = randint(100, 140)
         if "-blob_size" in argv:
             blob_min = int(argv[argv.index("-blob_size") + 1])
             blob_max = int(argv[argv.index("-blob_size") + 2])
         else:
-            blob_min, blob_max = 30, 70
+            blob_min, blob_max = 50, 90
         if "-stroke_count" in argv:
             stroke_count = int(argv[argv.index("-stroke_count") + 1])
         else:
-            stroke_count = randint(60, 90)
+            stroke_count = randint(80, 110)
         if "-stroke_size" in argv:
             stroke_min = int(argv[argv.index("-stroke_size") + 1])
             stroke_max = int(argv[argv.index("-stroke_size") + 2])
         else:
-            stroke_min, stroke_max = 10, 55
+            stroke_min, stroke_max = 30, 75
         blobs = {
             "count": blob_count,
             "size": (blob_min, blob_max),

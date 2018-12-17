@@ -8,6 +8,7 @@ from PIL import Image as PILImage
 from PIL import ImageDraw
 from PIL import ImageTk
 from random import randint
+from random import seed
 from sys import argv
 from tkinter import *
 
@@ -503,6 +504,7 @@ if __name__ == "__main__":
             height = int(argv[argv.index("-height") + 1])
         if "-name" in argv:
             name = argv[argv.index("-name") + 1]
+            seed(name)
         if "-gif" in argv:
             save_polygon_gif(width, height, name)
         else:
