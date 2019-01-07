@@ -82,9 +82,9 @@ class HSVImage:
     def _generate_hues(self, return_dict=None):
         values = []
         for y in range(self.height):
-            adjusted_y = 2 * y / self.height
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
             for x in range(self.width):
-                adjusted_x = 2 * x / self.width
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.hue["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["hue"] = values
@@ -94,9 +94,9 @@ class HSVImage:
     def _generate_sats(self, return_dict=None):
         values = []
         for y in range(self.height):
-            adjusted_y = 2 * y / self.height
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
             for x in range(self.width):
-                adjusted_x = 2 * x / self.width
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.sat["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["sat"] = values
@@ -106,9 +106,9 @@ class HSVImage:
     def _generate_vals(self, return_dict=None):
         values = []
         for y in range(self.height):
-            adjusted_y = 2 * y / self.height
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
             for x in range(self.width):
-                adjusted_x = 2 * x / self.width
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.val["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["val"] = values
@@ -200,7 +200,7 @@ class GUI:
         def _generate_hue_band(self, return_dict=None):
             data = []
             for i in self.hsv_image.hue["values"]:
-                data.append(((i / 2 + 0.5) * self.hsv_image.hue["range"] + self.hsv_image.hue["shift"]) % 256)
+                data.append(round(map_to(i, -1, 1, 0, self.hsv_image.hue["range"]) + self.hsv_image.hue["shift"]) % 256)
             if return_dict:
                 img = PILImage.new("L", (600, 400))
                 img.putdata(data)
@@ -211,7 +211,7 @@ class GUI:
         def _generate_sat_band(self, return_dict=None):
             data = []
             for i in self.hsv_image.sat["values"]:
-                data.append(((i / 2 + 0.5) * self.hsv_image.sat["range"] + self.hsv_image.sat["shift"]) % 256)
+                data.append(round(map_to(i, -1, 1, 0, self.hsv_image.sat["range"]) + self.hsv_image.sat["shift"]) % 256)
             if return_dict:
                 img = PILImage.new("L", (600, 400))
                 img.putdata(data)
@@ -222,7 +222,7 @@ class GUI:
         def _generate_val_band(self, return_dict=None):
             data = []
             for i in self.hsv_image.val["values"]:
-                data.append(((i / 2 + 0.5) * self.hsv_image.val["range"] + self.hsv_image.val["shift"]) % 256)
+                data.append(round(map_to(i, -1, 1, 0, self.hsv_image.val["range"]) + self.hsv_image.val["shift"]) % 256)
             if return_dict:
                 img = PILImage.new("L", (600, 400))
                 img.putdata(data)

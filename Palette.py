@@ -23,9 +23,9 @@ class PaletteImage:
     def generate(self):
         values = []
         for y in range(self.height):
-            adjusted_y = 2 * y / self.height
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
             for x in range(self.width):
-                adjusted_x = 2 * x / self.width
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.palette["tree"].eval(adjusted_x, adjusted_y))
         self.palette["values"] = values
         self.palette["domain"] = [min(values), max(values)]

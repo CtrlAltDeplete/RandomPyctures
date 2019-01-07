@@ -99,9 +99,9 @@ class PolygonImage:
     def _generate_hues(self, return_dict=None):
         values = []
         for y in range(-self.step_size, self.height + self.step_size, self.step_size):
-            adjusted_y = 2 * y / self.height
-            for x in range(-self.step_size, self.width + self.step_size, self.step_size):
-                adjusted_x = 2 * x / self.width
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
+            for x in range(self.width):
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.hue["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["hue"] = values
@@ -111,9 +111,9 @@ class PolygonImage:
     def _generate_sats(self, return_dict=None):
         values = []
         for y in range(-self.step_size, self.height + self.step_size, self.step_size):
-            adjusted_y = 2 * y / self.height
-            for x in range(-self.step_size, self.width + self.step_size, self.step_size):
-                adjusted_x = 2 * x / self.width
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
+            for x in range(self.width):
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.sat["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["sat"] = values
@@ -123,9 +123,9 @@ class PolygonImage:
     def _generate_vals(self, return_dict=None):
         values = []
         for y in range(-self.step_size, self.height + self.step_size, self.step_size):
-            adjusted_y = 2 * y / self.height
-            for x in range(-self.step_size, self.width + self.step_size, self.step_size):
-                adjusted_x = 2 * x / self.width
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
+            for x in range(self.width):
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.val["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["val"] = values
@@ -135,9 +135,9 @@ class PolygonImage:
     def _generate_opacs(self, return_dict=None):
         values = []
         for y in range(-self.step_size, self.height + self.step_size, self.step_size):
-            adjusted_y = 2 * y / self.height
-            for x in range(-self.step_size, self.width + self.step_size, self.step_size):
-                adjusted_x = 2 * x / self.width
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
+            for x in range(self.width):
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.opac["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["opac"] = values
@@ -147,9 +147,9 @@ class PolygonImage:
     def _generate_rots(self, return_dict=None):
         values = []
         for y in range(-self.step_size, self.height + self.step_size, self.step_size):
-            adjusted_y = 2 * y / self.height
-            for x in range(-self.step_size, self.width + self.step_size, self.step_size):
-                adjusted_x = 2 * x / self.width
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
+            for x in range(self.width):
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.rot["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["rot"] = values
@@ -159,9 +159,9 @@ class PolygonImage:
     def _generate_sizes(self, return_dict=None):
         values = []
         for y in range(-self.step_size, self.height + self.step_size, self.step_size):
-            adjusted_y = 2 * y / self.height
-            for x in range(-self.step_size, self.width + self.step_size, self.step_size):
-                adjusted_x = 2 * x / self.width
+            adjusted_y = map_to(y, 0, self.height, -1, 1)
+            for x in range(self.width):
+                adjusted_x = map_to(x, 0, self.width, -1, 1)
                 values.append(self.size["tree"].eval(adjusted_x, adjusted_y))
         if return_dict is not None:
             return_dict["size"] = values
@@ -429,17 +429,16 @@ def hsv_to_rgb(h, s, v):
 
 
 def generate_polygon(poly_image, draw, x, y, i):
-    hue = (poly_image.hue["range"] * (poly_image.hue["values"][i] / 2 + 0.5) + poly_image.hue["shift"]) % 255
-    sat = (poly_image.sat["range"] * (poly_image.sat["values"][i] / 2 + 0.5) +
-           poly_image.sat["shift"]) % 255
-    val = (poly_image.val["range"] * (poly_image.val["values"][i] / 2 + 0.5) +
-           poly_image.val["shift"]) % 255
-    opac = (poly_image.opac["range"] * (poly_image.opac["values"][i] / 2 + 0.5) +
-            poly_image.opac["shift"]) % 255
-    rot = math.pi * ((poly_image.rot["range"] * (poly_image.rot["values"][i] / 2 + 0.5) +
-                      poly_image.rot["shift"]) % 360) / 180
-    size = poly_image.size["range"] * (poly_image.size["values"][i] / 2 + 0.5) + \
-           poly_image.size["shift"]
+    hue = round(map_to(poly_image.hue["values"][i], -1, 1, 0, poly_image.hue["range"]) + poly_image.hue["shift"]) % 256
+    sat = round(map_to(poly_image.sat["values"][i], -1, 1, 0, poly_image.sat["range"]) + poly_image.sat["shift"]) % 256
+    val = round(map_to(poly_image.val["values"][i], -1, 1, 0, poly_image.val["range"]) + poly_image.val["shift"]) % 256
+    opac = round(
+        map_to(poly_image.opac["values"][i], -1, 1, 0, poly_image.opac["range"]) + poly_image.opac["shift"]
+                 ) % 256
+    rot = (map_to(
+        poly_image.rot["values"][i], -1, 1, 0, map_to(poly_image.rot["range"], 0, 360, 0, 2 * math.pi)
+                  ) + poly_image.rot["shift"]) % 256
+    size = (map_to(poly_image.size["values"][i], -1, 1, 0, poly_image.size["range"]) + poly_image.size["shift"]) % 256
 
     red, green, blue = hsv_to_rgb(hue, sat, val)
     angles = [rot + theta for theta in poly_image.polygon["angles"]]

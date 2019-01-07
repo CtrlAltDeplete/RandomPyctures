@@ -58,7 +58,10 @@ class Y(Function):
 class InverseX(Function):
     def eval(self, x, y, normalized=True):
         newX = x * self.cx + self.dx
-        return -1 * newX
+        z = -1 * newX
+        if normalized:
+            return map_to(z, self.zmin, self.zmax, -1, 1)
+        return z
 
     # def __str__(self):
     #     return "-1 * (x * {} + {})".format(self.cx, self.dx)
@@ -67,7 +70,10 @@ class InverseX(Function):
 class InverseY(Function):
     def eval(self, x, y, normalized=True):
         newY = y * self.cy + self.dy
-        return -1 * newY
+        z = -1 * newY
+        if normalized:
+            return map_to(z, self.zmin, self.zmax, -1, 1)
+        return z
 
     # def __str__(self):
     #     return "-1 * (y * {} + {})".format(self.cy, self.dy)
@@ -80,7 +86,7 @@ class Ripple(Function):
         z = newX * newY ** 3 - newY * newX ** 3
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -97,7 +103,7 @@ class Sinkhole(Function):
         z = (newX ** 2 + newY ** 2) * e ** (-newX ** 2 - newY ** 2)
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -113,7 +119,7 @@ class Pulse(Function):
         z = -newX * newY * e ** (-newX ** 2 - newY ** 2)
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -129,7 +135,7 @@ class Hill(Function):
         z = cos(abs(newX) + abs(newY))
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -143,7 +149,7 @@ class Sinkhole2(Function):
         z = cos(abs(newX) + abs(newY)) * (abs(newX) + abs(newY))
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -159,7 +165,7 @@ class Ripple2(Function):
         z = newX ** 3 - newX + newY ** 3 * newY
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -175,7 +181,7 @@ class Bendy(Function):
         z = sin(newX * newY)
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -189,7 +195,7 @@ class Checkered(Function):
         z = sin(cos(tan(newX))) * sin(cos(tan(newY)))
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -203,7 +209,7 @@ class Checkered2(Function):
         z = asin(newX) + asin(newY)
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -217,7 +223,7 @@ class Sum(Function):
         z = newX + newY
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -231,7 +237,7 @@ class Product(Function):
         z = newX * newY
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -245,7 +251,7 @@ class Mod(Function):
         z = newX % newY
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -259,7 +265,7 @@ class Mod2(Function):
         z = newY % newX
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -272,7 +278,7 @@ class Well(Function):
         z = 1 - 2 / (newX ** 2) ** 8
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -285,7 +291,7 @@ class Well2(Function):
         z = 1 - 2 / (newY ** 2) ** 8
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -299,7 +305,7 @@ class PolarR(Function):
         z = sqrt(newX ** 2 + newY ** 2)
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -325,7 +331,7 @@ class PolarTheta(Function):
                     z = 5 * pi / 4
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -339,7 +345,7 @@ class GammaLower(Function):
         z = special.gammainc(abs(newX * 10 + 1), abs(newY * 10))
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -355,7 +361,7 @@ class GammaUpper(Function):
         z = special.gammainc(abs(newX * 10 + 1), abs(newY * 10))
         if normalized:
             z = max(self.zmin, min(self.zmax, z))
-            return (z - self.zmin) / (self.zmax - self.zmin) * 2 - 1
+            return map_to(z, self.zmin, self.zmax, -1, 1)
         return z
 
     # def __str__(self):
@@ -445,6 +451,12 @@ def saveTree(root, filename):
     tree, depth = createTree(root)
     with open("tests/{}".format(filename), 'w') as f:
         print(_printTree(tree, depth), end='', file=f)
+
+
+def map_to(value, old_min, old_max, new_min, new_max):
+    old_range = old_max - old_min
+    new_range = new_max - new_min
+    return new_min + new_range * (value - old_min) / old_range
 
 
 if __name__ == '__main__':
