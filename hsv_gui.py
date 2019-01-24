@@ -4,7 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class UI:
-    def __init__(self, Form):
+    def __init__(self, HSV):
         # Flags for generation
         self.hue_changed = True
         self.previous_hue = None
@@ -13,54 +13,73 @@ class UI:
         self.value_changed = True
         self.previous_value = None
 
+        self.frame = HSV
+
+        font_database = QtGui.QFontDatabase()
+        font_id = font_database.addApplicationFont('Montserrat-Bold.ttf')
+        font = QtGui.QFont('Montserrat')
+        font.setPointSize(10)
+
         # HSV Image
-        self.hsv = HSVImage(800, 600)
+        self.hsv = HSVImage(600, 400)
         self.image = None
 
-        # Form
-        Form.setObjectName("Form")
-        Form.resize(800, 780)
-        Form.setMinimumSize(QtCore.QSize(800, 780))
-        Form.setMaximumSize(QtCore.QSize(800, 780))
-        Form.setBaseSize(QtCore.QSize(800, 800))
+        # HSV
+        HSV.setObjectName("HSV")
+        HSV.setStyleSheet(open("style.css").read())
+        HSV.resize(600, 600)
+        HSV.setMinimumSize(QtCore.QSize(600, 600))
+        HSV.setMaximumSize(QtCore.QSize(600, 600))
+        HSV.setBaseSize(QtCore.QSize(600, 600))
 
         # TOP THIRD
         # Grid Layout
-        self.gridLayoutWidget = QtWidgets.QWidget(Form)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(9, 10, 781, 111))
+        self.gridLayoutWidget = QtWidgets.QWidget(HSV)
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(8, 0, 584, 158))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayoutWidget.mousePressEvent = self.mousePressEvent
+        self.gridLayoutWidget.mouseMoveEvent = self.mouseMoveEvent
         self.gridLayout.setObjectName("gridLayout")
 
-        # Spacer and Labels
-        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
-        self.gridLayout.addItem(spacerItem, 0, 0, 1, 1)
+        # Close and Labels
+        self.closeButton = QtWidgets.QPushButton(self.gridLayoutWidget)
+        self.closeButton.setMinimumSize(QtCore.QSize(20, 20))
+        self.closeButton.setMaximumSize(QtCore.QSize(20, 20))
+        self.closeButton.setObjectName("closeButton")
+        self.closeButton.clicked.connect(self.close_button)
+        self.gridLayout.addWidget(self.closeButton)
 
         self.treeLabel = QtWidgets.QLabel(self.gridLayoutWidget)
         self.treeLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.treeLabel.setObjectName("treeLabel")
+        self.treeLabel.setFont(font)
         self.gridLayout.addWidget(self.treeLabel, 0, 1, 1, 1)
 
         self.shiftLabel = QtWidgets.QLabel(self.gridLayoutWidget)
         self.shiftLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.shiftLabel.setObjectName("shiftLabel")
+        self.shiftLabel.setFont(font)
         self.gridLayout.addWidget(self.shiftLabel, 0, 2, 1, 1)
 
         self.rangeLabel = QtWidgets.QLabel(self.gridLayoutWidget)
         self.rangeLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.rangeLabel.setObjectName("rangeLabel")
+        self.rangeLabel.setFont(font)
         self.gridLayout.addWidget(self.rangeLabel, 0, 3, 1, 1)
 
         self.visibleLabel = QtWidgets.QLabel(self.gridLayoutWidget)
         self.visibleLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.visibleLabel.setObjectName("visibleLabel")
+        self.visibleLabel.setFont(font)
         self.gridLayout.addWidget(self.visibleLabel, 0, 4, 1, 1)
 
         # Hue Elements
         self.hueLabel = QtWidgets.QLabel(self.gridLayoutWidget)
         self.hueLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.hueLabel.setObjectName("hueLabel")
+        self.hueLabel.setFont(font)
         self.gridLayout.addWidget(self.hueLabel, 1, 0, 1, 1)
 
         self.hueTreeButton = QtWidgets.QPushButton(self.gridLayoutWidget)
@@ -98,6 +117,7 @@ class UI:
         self.saturationLabel = QtWidgets.QLabel(self.gridLayoutWidget)
         self.saturationLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.saturationLabel.setObjectName("saturationLabel")
+        self.saturationLabel.setFont(font)
         self.gridLayout.addWidget(self.saturationLabel, 2, 0, 1, 1)
 
         self.saturationTreeButton = QtWidgets.QPushButton(self.gridLayoutWidget)
@@ -135,6 +155,7 @@ class UI:
         self.valueLabel = QtWidgets.QLabel(self.gridLayoutWidget)
         self.valueLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.valueLabel.setObjectName("valueLabel")
+        self.valueLabel.setFont(font)
         self.gridLayout.addWidget(self.valueLabel, 3, 0, 1, 1)
 
         self.valueTreeButton = QtWidgets.QPushButton(self.gridLayoutWidget)
@@ -173,11 +194,11 @@ class UI:
         self.save()
 
         # Image Label
-        self.image = QtWidgets.QLabel(Form)
+        self.image = QtWidgets.QLabel(HSV)
         self.image.setEnabled(True)
-        self.image.setGeometry(QtCore.QRect(0, 130, 800, 600))
-        self.image.setMinimumSize(QtCore.QSize(800, 600))
-        self.image.setMaximumSize(QtCore.QSize(800, 600))
+        self.image.setGeometry(QtCore.QRect(0, 160, 600, 400))
+        self.image.setMinimumSize(QtCore.QSize(600, 400))
+        self.image.setMaximumSize(QtCore.QSize(600, 400))
         self.image.setAutoFillBackground(True)
         self.image.setPixmap(QtGui.QPixmap("_temp.png"))
         self.image.setObjectName("image")
@@ -185,8 +206,8 @@ class UI:
 
         # BOTTOM THIRD
         # Horizontal Layout
-        self.horizontalLayoutWidget = QtWidgets.QWidget(Form)
-        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(9, 740, 781, 31))
+        self.horizontalLayoutWidget = QtWidgets.QWidget(HSV)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(8, 560, 584, 40))
         self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -201,26 +222,33 @@ class UI:
         # Name Entry
         self.nameEntry = QtWidgets.QLineEdit(self.horizontalLayoutWidget)
         self.nameEntry.setObjectName("nameEntry")
+        self.nameEntry.setClearButtonEnabled(True)
         self.horizontalLayout.addWidget(self.nameEntry)
 
         # Save Button
         self.saveButton = QtWidgets.QPushButton(self.horizontalLayoutWidget)
         self.saveButton.setObjectName("saveButton")
+        self.saveButton.clicked.connect(lambda: self.save(self.nameEntry.text(), (1200, 800)))
         self.horizontalLayout.addWidget(self.saveButton)
 
-        self.translate_ui(Form)
-        QtCore.QMetaObject.connectSlotsByName(Form)
+        self.translate_ui(HSV)
+        QtCore.QMetaObject.connectSlotsByName(HSV)
 
-    def save(self, name="_temp", size=(800, 600)):
-        print("SAVE CALLED")
+    def disable_gui(self):
         QtGui.QGuiApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
+
+    def enable_gui(self):
+        QtWidgets.QApplication.restoreOverrideCursor()
+
+    def save(self, name="_temp", size=(600, 400)):
         visibility = (
             self.hueCheckbox.isChecked(),
             self.saturationCheckbox.isChecked(),
             self.valueCheckbox.isChecked()
         )
         color = self.hsv.hue, self.hsv.sat, self.hsv.val
-        if size != (800, 600):
+        if size != (600, 400):
+            self.disable_gui()
             bands = (generate_band(size[0], size[1], visibility[i], color[i]["tree"], color[i]["shift"],
                                    color[i]["range"]) for i in range(3))
             bands = list(bands)
@@ -242,9 +270,11 @@ class UI:
         img.save(name + ".png", "PNG")
         if name == "_temp" and self.image:
             self.image.setPixmap(QtGui.QPixmap("_temp.png"))
-        QtWidgets.QApplication.restoreOverrideCursor()
+        else:
+            self.enable_gui()
 
     def new_hue_tree(self, save=True):
+        self.disable_gui()
         self.hue_changed = True
         self.hsv._new_hue()
         self.hueShiftSlider.blockSignals(True)
@@ -255,8 +285,10 @@ class UI:
         self.hueRangeSlider.blockSignals(False)
         if save:
             self.save()
+        self.enable_gui()
 
     def new_saturation_tree(self, save=True):
+        self.disable_gui()
         self.saturation_changed = True
         self.hsv._new_sat()
         self.saturationShiftSlider.blockSignals(True)
@@ -267,8 +299,10 @@ class UI:
         self.saturationRangeSlider.blockSignals(False)
         if save:
             self.save()
+        self.enable_gui()
 
     def new_value_tree(self, save=True):
+        self.disable_gui()
         self.value_changed = True
         self.hsv._new_val()
         self.valueShiftSlider.blockSignals(True)
@@ -279,94 +313,130 @@ class UI:
         self.valueRangeSlider.blockSignals(False)
         if save:
             self.save()
+        self.enable_gui()
 
     def hue_shift_changed(self):
         if self.hueShiftSlider.isSliderDown():
             return
+        self.disable_gui()
         self.hue_changed = True
         self.hsv.hue["shift"] = self.hueShiftSlider.value()
         self.save()
+        self.enable_gui()
 
     def hue_range_changed(self):
         if self.hueRangeSlider.isSliderDown():
             return
+        self.disable_gui()
         self.hue_changed = True
         self.hsv.hue["range"] = self.hueRangeSlider.value()
         self.save()
+        self.enable_gui()
 
     def saturation_shift_changed(self):
         if self.saturationShiftSlider.isSliderDown():
             return
+        self.disable_gui()
         self.saturation_changed = True
         self.hsv.sat["shift"] = self.saturationShiftSlider.value()
         self.save()
+        self.enable_gui()
 
     def saturation_range_changed(self):
         if self.saturationRangeSlider.isSliderDown():
             return
+        self.disable_gui()
         self.saturation_changed = True
         self.hsv.sat["range"] = self.saturationRangeSlider.value()
         self.save()
+        self.enable_gui()
 
     def value_shift_changed(self):
         if self.valueShiftSlider.isSliderDown():
             return
+        self.disable_gui()
         self.value_changed = True
         self.hsv.val["shift"] = self.valueShiftSlider.value()
         self.save()
+        self.enable_gui()
 
     def value_range_changed(self):
         if self.valueRangeSlider.isSliderDown():
             return
+        self.disable_gui()
         self.value_changed = True
         self.hsv.val["range"] = self.valueRangeSlider.value()
         self.save()
+        self.enable_gui()
 
     def hue_checkbox_changed(self):
+        self.disable_gui()
         self.hue_changed = True
         self.save()
+        self.enable_gui()
 
     def saturation_checkbox_changed(self):
+        self.disable_gui()
         self.saturation_changed = True
         self.save()
+        self.enable_gui()
 
     def value_checkbox_changed(self):
+        self.disable_gui()
         self.value_changed = True
         self.save()
+        self.enable_gui()
 
     def new_image(self):
+        self.disable_gui()
         self.hue_changed, self.saturation_changed, self.value_changed = True, True, True
-        QtGui.QGuiApplication.setOverrideCursor(QtGui.QCursor(QtCore.Qt.WaitCursor))
         self.new_hue_tree(False)
         self.new_saturation_tree(False)
         self.new_value_tree(False)
         self.save()
-        QtWidgets.QApplication.restoreOverrideCursor()
+        self.enable_gui()
 
-    def translate_ui(self, Form):
+    def close_button(self):
+        self.frame.close()
+
+    def mousePressEvent(self, event):
+        self.dragPos = event.globalPos()
+        event.accept()
+
+    def mouseMoveEvent(self, event):
+        self.frame.move(self.frame.pos() + event.globalPos() - self.dragPos)
+        self.dragPos = event.globalPos()
+        event.accept()
+
+    def translate_ui(self, HSV):
         _translate = QtCore.QCoreApplication.translate
-        Form.setWindowTitle(_translate("Form", "Form"))
-        self.treeLabel.setText(_translate("Form", "Tree"))
-        self.valueLabel.setText(_translate("Form", "Value"))
-        self.saturationCheckbox.setText(_translate("Form", "Toggle"))
-        self.hueTreeButton.setText(_translate("Form", "New"))
-        self.rangeLabel.setText(_translate("Form", "Range"))
-        self.valueCheckbox.setText(_translate("Form", "Toggle"))
-        self.hueCheckbox.setText(_translate("Form", "Toggle"))
-        self.hueLabel.setText(_translate("Form", "Hue"))
-        self.saturationLabel.setText(_translate("Form", "Saturation"))
-        self.shiftLabel.setText(_translate("Form", "Shift"))
-        self.visibleLabel.setText(_translate("Form", "Visible"))
-        self.valueTreeButton.setText(_translate("Form", "New"))
-        self.saturationTreeButton.setText(_translate("Form", "New"))
-        self.newButton.setText(_translate("Form", "New Image"))
-        self.saveButton.setText(_translate("Form", "Save"))
+        HSV.setWindowTitle(_translate("HSV", "HSV"))
+        self.treeLabel.setText(_translate("HSV", "TREE"))
+        self.valueLabel.setText(_translate("HSV", "VALUE"))
+        self.saturationCheckbox.setText(_translate("HSV", "sat"))
+        self.hueTreeButton.setText(_translate("HSV", "New"))
+        self.rangeLabel.setText(_translate("HSV", "RANGE"))
+        self.valueCheckbox.setText(_translate("HSV", "val"))
+        self.hueCheckbox.setText(_translate("HSV", "hue"))
+        self.hueLabel.setText(_translate("HSV", "HUE"))
+        self.saturationLabel.setText(_translate("HSV", "SATURATION"))
+        self.shiftLabel.setText(_translate("HSV", "SHIFT"))
+        self.visibleLabel.setText(_translate("HSV", "VISIBLE"))
+        self.valueTreeButton.setText(_translate("HSV", "New"))
+        self.saturationTreeButton.setText(_translate("HSV", "New"))
+        self.newButton.setText(_translate("HSV", "New Image"))
+        self.saveButton.setText(_translate("HSV", "Save"))
+        self.closeButton.setText(_translate("HSV", "x"))
 
 
 if __name__ == "__main__":
+    import atexit
+    import os
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    Form = QtWidgets.QWidget()
-    ui = UI(Form)
-    Form.show()
+    HSV = QtWidgets.QWidget()
+    HSV.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+    ui = UI(HSV)
+    HSV.show()
+    atexit.register(lambda: os.remove("_temp.png") if os.path.exists("_temp.png") else None)
     sys.exit(app.exec_())
